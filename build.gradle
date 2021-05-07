@@ -4,23 +4,38 @@ plugins {
 
     // Apply the application plugin to add support for building a CLI application.
     id 'application'
+
+    id 'org.springframework.boot' version '2.4.5'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    // This dependency is used by the application.
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+
     implementation 'com.google.guava:guava:29.0-jre'
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.11.3'
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'net.logstash.logback:logstash-logback-encoder:6.3'
 
-    // Use JUnit Jupiter API for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
-
-    // Use JUnit Jupiter Engine for testing.
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
+    testImplementation("org.mock-server:mockserver-netty:5.11.2")
+    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.9.0'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.9.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.awaitility:awaitility:3.1.6'
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 }
 
 application {

@@ -1,0 +1,3 @@
+logging:
+  level:
+    reecejohnson.web.crawler: DEBUG
