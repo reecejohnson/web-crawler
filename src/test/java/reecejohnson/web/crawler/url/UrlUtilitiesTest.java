@@ -35,6 +35,36 @@ class UrlUtilitiesTest {
     }
 
     @Nested
+    class CleanseUrl {
+        @Test
+        void shouldRemoveTrailingSlashFromUrl() {
+            var urlWithTrailingSlash = "https://example.com/";
+
+            String result = urlUtilities.cleanseUrl(urlWithTrailingSlash);
+
+            assertEquals("https://example.com", result);
+        }
+
+        @Test
+        void shouldRemoveInternalPageSectionLinks() {
+            var urlWithInternalPageSectionLink = "https://example.com/#section-one";
+
+            String result = urlUtilities.cleanseUrl(urlWithInternalPageSectionLink);
+
+            assertEquals("https://example.com", result);
+        }
+
+        @Test
+        void shouldRemoveInternalPageSectionLinksWhenNotDirectlyAfterSlash() {
+            var urlWithInternalPageSectionLink = "https://example.com/12as#sdse";
+
+            String result = urlUtilities.cleanseUrl(urlWithInternalPageSectionLink);
+
+            assertEquals("https://example.com/12as", result);
+        }
+    }
+
+    @Nested
     class IsUrlValid {
 
         @DisplayName("Should return true for valid url")
@@ -97,7 +127,6 @@ class UrlUtilitiesTest {
         boolean result = urlUtilities.areUrlsTheSameDomain(validUrl, invalidUrl);
 
         assertFalse(result);
-        assertEquals(1, testAppender.findLogsContaining("Unable to read URL with exception").size());
     }
 
     static Stream<Arguments> urlsFromTheSameDomain() {

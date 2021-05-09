@@ -1,5 +1,6 @@
 package reecejohnson.web.crawler.crawler;
 
+import reecejohnson.web.crawler.models.UrlScrapeException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LinkScraperTest {
 
@@ -37,7 +39,7 @@ class LinkScraperTest {
     }
 
     @Test
-    void shouldFindCorrectAmountOfLinks() throws IOException {
+    void shouldFindCorrectAmountOfLinks() throws IOException, UrlScrapeException {
         String validHtmlPage = new String(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("pageOne.html")).readAllBytes());
         mockHttpCallToGetWebpage(validHtmlPage);
 
@@ -47,10 +49,10 @@ class LinkScraperTest {
     }
 
     @Test
-    void shouldIgnoreLinkTagsWithNoHrefAttribute() throws IOException {
+    void shouldIgnoreLinkTagsWithNoHrefAttribute() throws UrlScrapeException {
         mockHttpCallToGetWebpage(
                 "<a>No href</a>" +
-                "<a href=\"www.link.com\">Href</a");
+                        "<a href=\"www.link.com\">Href</a");
 
         List<String> links = linkScraper.scrape(URL);
 
@@ -58,7 +60,7 @@ class LinkScraperTest {
     }
 
     @Test
-    void shouldReturnEmptyListWhenInvalidHtmlWithNoLinks() throws IOException {
+    void shouldReturnEmptyListWhenInvalidHtmlWithNoLinks() throws UrlScrapeException {
         String invalidHtml = "<p><p><p><a>></a";
         mockHttpCallToGetWebpage(invalidHtml);
 
@@ -67,9 +69,24 @@ class LinkScraperTest {
         assertEquals(links.size(), 0);
     }
 
+    @Test
+    void shouldThrowUrlScrapeExceptionWhenErrorCallingUrl() {
+        mockHttpErrorResponse();
+
+        assertThrows(UrlScrapeException.class, () -> {
+            linkScraper.scrape(URL);
+        });
+    }
+
     private void mockHttpCallToGetWebpage(String htmlResponse) {
         clientServer.when(new HttpRequest().withMethod("GET"))
                 .respond(new HttpResponse().withStatusCode(HttpStatusCode.OK_200.code())
                         .withBody(htmlResponse, MediaType.HTML_UTF_8));
+    }
+
+    private void mockHttpErrorResponse() {
+        clientServer.when(new HttpRequest().withMethod("GET"))
+                .respond(new HttpResponse()
+                        .withStatusCode(HttpStatusCode.INTERNAL_SERVER_ERROR_500.code()));
     }
 }

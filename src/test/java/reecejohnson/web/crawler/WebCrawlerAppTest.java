@@ -46,19 +46,34 @@ class WebCrawlerAppTest {
 
     @Test
     void shouldPrintCorrectAmountOfLinks() throws IOException {
-        String validHtmlPage = new String(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("pageOne.html")).readAllBytes());
-        mockHttpCallToGetWebpage(validHtmlPage);
+        mockHttpCallToGetWebpage("/", "pageOne.html");
+        mockHttpCallToGetWebpage("/page-two", "pageTwo.html");
+        mockHttpCallToGetWebpage("/page-three", "pageThree.html");
+        mockHttpCallToGetWebpage("/page-four", "pageFour.html");
+        mockHttpCallToGetWebpage("/page-five", "pageOne.html");
+        mockHttpCallToGetWebpage("/page-six", "pageOne.html");
         String[] arguments = {"http://localhost:" + PORT};
 
         WebCrawlerApp.main(arguments);
 
         assertLogsContain("Successfully crawled http://localhost:9898 and found 3 links");
+        assertLogsContain("Successfully crawled http://localhost:9898/page-two and found 3 links");
+        assertLogsContain("Successfully crawled http://localhost:9898/page-three and found 3 links");
+        assertLogsContain("Successfully crawled http://localhost:9898/page-four and found 4 links");
+        assertLogsContain("Successfully crawled http://localhost:9898/page-five and found 3 links");
+        assertLogsContain("Successfully crawled http://localhost:9898/page-six and found 3 links");
+        assertLogsContain("Finished crawl: http://localhost:9898 has 6 crawlable pages");
     }
 
-    private void mockHttpCallToGetWebpage(String htmlResponse) {
-        clientServer.when(new HttpRequest().withMethod("GET"))
+    private String getHtmlFIleAsString(String fileName) throws IOException {
+        return new String(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(fileName)).readAllBytes());
+    }
+
+    private void mockHttpCallToGetWebpage(String urlPath, String htmlFileName) throws IOException {
+        String htmlFile = getHtmlFIleAsString(htmlFileName);
+        clientServer.when(new HttpRequest().withMethod("GET").withPath(urlPath))
                 .respond(new HttpResponse().withStatusCode(HttpStatusCode.OK_200.code())
-                        .withBody(htmlResponse, MediaType.HTML_UTF_8));
+                        .withBody(htmlFile, MediaType.HTML_UTF_8));
     }
 
     private void assertLogsContain(final String logMessage) {

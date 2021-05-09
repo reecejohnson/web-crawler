@@ -12,6 +12,12 @@ import static org.apache.commons.validator.routines.UrlValidator.ALLOW_LOCAL_URL
 @Component
 @Slf4j
 public class UrlUtilities {
+
+    public String cleanseUrl(final String url) {
+        String removeInternalPageSectionLink = removeInternalPageSectionLink(url);
+        return removeTrailingSlash(removeInternalPageSectionLink);
+    }
+
     public boolean isUrlValid(final String url) {
         String[] schemes = {"http", "https"};
         UrlValidator urlValidator = new UrlValidator(schemes, ALLOW_LOCAL_URLS);
@@ -42,5 +48,20 @@ public class UrlUtilities {
         }
 
         return host;
+    }
+
+    private String removeTrailingSlash(final String url) {
+        if (url.charAt(url.length() - 1) == '/') {
+            return url.substring(0, url.length() - 1);
+        }
+        return url;
+    }
+
+    private String removeInternalPageSectionLink(final String url) {
+        int indexOfHash = url.lastIndexOf('#');
+        if (indexOfHash == -1) {
+            return url;
+        }
+        return url.substring(0, indexOfHash);
     }
 }

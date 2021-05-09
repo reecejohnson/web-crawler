@@ -2,33 +2,36 @@ package reecejohnson.web.crawler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import reecejohnson.web.crawler.crawler.Crawler;
+import reecejohnson.web.crawler.crawler.CrawlerOrchestrator;
 import reecejohnson.web.crawler.models.InvalidArgumentException;
-import reecejohnson.web.crawler.models.WebPage;
+import reecejohnson.web.crawler.models.Sitemap;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.io.IOException;
 
 @Slf4j
 @SpringBootApplication
 @RequiredArgsConstructor
 public class WebCrawlerApp implements CommandLineRunner {
 
-    private final Crawler crawler;
+    private final CrawlerOrchestrator crawlerOrchestrator;
 
     public static void main(String[] args) {
         SpringApplication.run(WebCrawlerApp.class, args);
     }
 
     @Override
-    public void run(String... args) throws IOException, InvalidArgumentException {
+    public void run(String... args) throws InvalidArgumentException {
         String url = getUrlFromArguments(args);
 
-        final WebPage webPage = crawler.crawl(url);
+        final Sitemap sitemap = crawlerOrchestrator.start(url);
 
-        System.out.println(webPage.toString());
+        String finishedCrawlMessage = String.format("Finished crawl: %s has %s crawlable pages", url, sitemap.getWebPages().size());
+        log.info(finishedCrawlMessage);
+        System.out.println(finishedCrawlMessage);
+        String sitemapString = sitemap.toString();
+        log.info(sitemapString);
+        System.out.println(sitemapString);
     }
 
     private String getUrlFromArguments(String... args) throws InvalidArgumentException {
