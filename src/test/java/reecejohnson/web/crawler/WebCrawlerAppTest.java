@@ -48,7 +48,7 @@ class WebCrawlerAppTest {
     void shouldPrintCorrectAmountOfLinks() throws IOException {
         String validHtmlPage = new String(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("pageOne.html")).readAllBytes());
         mockHttpCallToGetWebpage(validHtmlPage);
-        String[] arguments = {"http://localhost:9898"};
+        String[] arguments = {"http://localhost:" + PORT};
 
         WebCrawlerApp.main(arguments);
 

@@ -43,7 +43,7 @@ class LinkScraperTest {
 
         List<String> links = linkScraper.scrape(URL);
 
-        assertEquals(links.size(), 3);
+        assertEquals(links.size(), 5);
     }
 
     @Test

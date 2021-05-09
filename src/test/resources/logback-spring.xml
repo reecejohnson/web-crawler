@@ -10,4 +10,8 @@
         <appender-ref ref="map"/>
         <appender-ref ref="STDOUT"/>
     </root>
+    <root level="error">
+        <appender-ref ref="map"/>
+        <appender-ref ref="STDOUT"/>
+    </root>
 </configuration>
