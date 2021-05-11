@@ -40,7 +40,7 @@ public class Crawler {
         }
     }
 
-    private Predicate<String> filterOutLinksFromDifferentDomains(String url) {
+    private Predicate<String> filterOutLinksFromDifferentDomains(final String url) {
         return link -> urlUtilities.areUrlsTheSameDomain(url, link);
     }
 }

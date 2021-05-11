@@ -17,7 +17,7 @@ import java.util.Objects;
 @Component
 public class HtmlOutputBuilder {
 
-    private Document document;
+    private final Document document;
 
     public HtmlOutputBuilder() throws IOException {
         document = Jsoup.parse(getHtmlFIleAsString("template.html"));
@@ -39,7 +39,7 @@ public class HtmlOutputBuilder {
         }
     }
 
-    private String getHtmlFIleAsString(String fileName) throws IOException {
+    private String getHtmlFIleAsString(final String fileName) throws IOException {
         return new String(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(fileName)).readAllBytes());
     }
 
