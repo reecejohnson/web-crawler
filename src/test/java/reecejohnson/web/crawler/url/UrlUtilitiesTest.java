@@ -62,6 +62,15 @@ class UrlUtilitiesTest {
 
             assertEquals("https://example.com/12as", result);
         }
+
+        @Test
+        void shouldTransformUrlToAllLowerCase() {
+            var urlWithTrailingSlash = "https://example.com/About-Us";
+
+            String result = urlUtilities.cleanseUrl(urlWithTrailingSlash);
+
+            assertEquals("https://example.com/about-us", result);
+        }
     }
 
     @Nested

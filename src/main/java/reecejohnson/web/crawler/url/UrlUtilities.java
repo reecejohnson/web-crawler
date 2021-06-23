@@ -15,7 +15,8 @@ public class UrlUtilities {
 
     public String cleanseUrl(final String url) {
         String removeInternalPageSectionLink = removeInternalPageSectionLink(url);
-        return removeTrailingSlash(removeInternalPageSectionLink);
+        String lowerCaseLink = removeInternalPageSectionLink.toLowerCase();
+        return removeTrailingSlash(lowerCaseLink);
     }
 
     public boolean isUrlValid(final String url) {

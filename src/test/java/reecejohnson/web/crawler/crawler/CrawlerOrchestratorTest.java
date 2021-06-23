@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -111,7 +112,6 @@ class CrawlerOrchestratorTest {
 
         Sitemap sitemap = crawlerOrchestrator.start(baseUrl, 4);
 
-        assertEquals(1, testAppender.findLogsContaining("Error handling future response").size());
         assertEquals(2, sitemap.getWebPages().size());
     }
 
