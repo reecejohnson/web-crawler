@@ -62,7 +62,7 @@ class WebCrawlerAppTest {
         mockHttpCallToGetWebpage("/page-four", "pageFour.html");
         mockHttpCallToGetWebpage("/page-five", "pageOne.html");
         mockHttpCallToGetWebpage("/page-six", "pageOne.html");
-        String[] arguments = {"http://localhost:" + PORT};
+        String[] arguments = {"http://localhost:" + PORT, "4"};
 
         WebCrawlerApp.main(arguments);
 
@@ -80,7 +80,23 @@ class WebCrawlerAppTest {
         assertThrows(IllegalStateException.class, () -> {
             WebCrawlerApp.main(new String[] {});
         });
-        assertLogsContain("Invalid arguments provided");
+        assertLogsContain("Invalid argument. Argument #1: Url - must be a string.");
+    }
+
+    @Test
+    void shouldThrowInvalidArgumentExceptionWhenNumberOfThreadsNotProvided() {
+        assertThrows(IllegalStateException.class, () -> {
+            WebCrawlerApp.main(new String[] { "https://url.com" });
+        });
+        assertLogsContain("Invalid argument. Argument #2: Number of Threads - must be an integer.");
+    }
+
+    @Test
+    void shouldThrowInvalidArgumentExceptionWhenNumberOfThreadsIsProviderBytIsNotOfTypeInt() {
+        assertThrows(IllegalStateException.class, () -> {
+            WebCrawlerApp.main(new String[] { "https://url.com", "not an int" });
+        });
+        assertLogsContain("Invalid argument. Argument #2: Number of Threads - must be an integer.");
     }
 
     private String getHtmlFIleAsString(String fileName) throws IOException {

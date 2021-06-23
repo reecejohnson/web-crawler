@@ -1,12 +1,17 @@
 package reecejohnson.web.crawler.crawler;
 
+import reecejohnson.web.crawler.TestAppender;
 import reecejohnson.web.crawler.models.Sitemap;
 import reecejohnson.web.crawler.models.WebPage;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +25,7 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 class CrawlerOrchestratorTest {
 
     private CrawlerOrchestrator crawlerOrchestrator;
+    private TestAppender testAppender;
 
     private final String baseUrl = "https://url.com";
 
@@ -29,6 +35,12 @@ class CrawlerOrchestratorTest {
     @BeforeEach
     void setup() {
         crawlerOrchestrator = new CrawlerOrchestrator(crawler);
+        Logger logger = (Logger) LoggerFactory.getLogger(CrawlerOrchestrator.class);
+        testAppender = new TestAppender();
+        testAppender.setContext((LoggerContext) LoggerFactory.getILoggerFactory());
+        logger.setLevel(Level.INFO);
+        logger.addAppender(testAppender);
+        testAppender.start();
     }
 
     @Test
@@ -49,7 +61,7 @@ class CrawlerOrchestratorTest {
         List<String> childCLinks = List.of();
         when(crawler.crawl(childCUrl)).thenReturn(buildWebPageWithLinks(childCUrl, childCLinks));
 
-        Sitemap sitemap = crawlerOrchestrator.start(baseUrl);
+        Sitemap sitemap = crawlerOrchestrator.start(baseUrl, 4);
 
         assertEquals(4, sitemap.getWebPages().size());
         assertEquals(baseUrl, sitemap.getWebPages().get(0).getUrl());
@@ -76,17 +88,37 @@ class CrawlerOrchestratorTest {
         List<String> childBLinks = List.of(baseUrl, childAUrl);
         when(crawler.crawl(childBUrl)).thenReturn(buildWebPageWithLinks(childBUrl, childBLinks));
 
-        Sitemap sitemap = crawlerOrchestrator.start(baseUrl);
+        Sitemap sitemap = crawlerOrchestrator.start(baseUrl, 4);
 
         assertEquals(3, sitemap.getWebPages().size());
         verify(crawler, times(1)).crawl(baseUrl);
         verify(crawler, times(1)).crawl(childAUrl);
     }
 
+
+    @Test
+    void shouldLogErrorOnFailureOfCrawlAndContinueToProcess() {
+        String childAUrl = baseUrl + "/child-a";
+        String childBUrl = baseUrl + "/child-b";
+
+        List<String> baseUrlLinks = List.of(baseUrl, childAUrl, childBUrl);
+        when(crawler.crawl(baseUrl)).thenReturn(buildWebPageWithLinks(baseUrl, baseUrlLinks));
+
+        when(crawler.crawl(childAUrl)).thenThrow(new RuntimeException("error"));
+
+        List<String> childBLinks = List.of(baseUrl, "/different");
+        when(crawler.crawl(childBUrl)).thenReturn(buildWebPageWithLinks(childBUrl, childBLinks));
+
+        Sitemap sitemap = crawlerOrchestrator.start(baseUrl, 4);
+
+        assertEquals(1, testAppender.findLogsContaining("Error handling future response").size());
+        assertEquals(2, sitemap.getWebPages().size());
+    }
+
     @Test
     void shouldIgnoreCrawlerResponseWhenEmpty() {
         when(crawler.crawl(baseUrl)).thenReturn(Optional.empty());
-        Sitemap sitemap = crawlerOrchestrator.start(baseUrl);
+        Sitemap sitemap = crawlerOrchestrator.start(baseUrl, 4);
         assertEquals(0, sitemap.getWebPages().size());
     }
 

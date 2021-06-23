@@ -11,9 +11,9 @@ A command line application to crawl all internal links for a specified URL and p
 `./gradlew test`
 
 ## Run Application
-Run the application by providing the base URL to crawl.
+Run the application by providing the base URL to crawl and number of threads to run concurrently.
 
-`./gradlew run --args='https://www.url-to-crawl.com'  `   
+`./gradlew run --args='https://www.url-to-crawl.com, 4'`   
 
 ## Questions & Queries
 📩 [reece@reecejohnson.co.uk](mailto:reece@reecejohnson.co.uk?subject=Web%20Crawler)

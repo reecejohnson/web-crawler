@@ -8,6 +8,7 @@ import reecejohnson.web.crawler.models.Sitemap;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @Slf4j
 @SpringBootApplication
@@ -15,6 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class WebCrawlerApp implements CommandLineRunner {
 
     private final CrawlerOrchestrator crawlerOrchestrator;
+    private final ConfigurableApplicationContext context;
 
     public static void main(String[] args) {
         SpringApplication.run(WebCrawlerApp.class, args);
@@ -23,8 +25,9 @@ public class WebCrawlerApp implements CommandLineRunner {
     @Override
     public void run(String... args) throws InvalidArgumentException {
         String url = getUrlFromArguments(args);
+        int numberOfThreads = getNumberOfThreadsFromArguments( args);
 
-        final Sitemap sitemap = crawlerOrchestrator.start(url);
+        final Sitemap sitemap = crawlerOrchestrator.start(url, numberOfThreads);
 
         String finishedCrawlMessage = String.format("Finished crawl: %s has %s crawlable pages", url, sitemap.getWebPages().size());
         log.info(finishedCrawlMessage);
@@ -32,13 +35,24 @@ public class WebCrawlerApp implements CommandLineRunner {
         String sitemapString = sitemap.toString();
         log.info(sitemapString);
         System.out.println(sitemapString);
+        System.exit(SpringApplication.exit(context));
     }
 
-    private String getUrlFromArguments(String... args) throws InvalidArgumentException {
+    private String getUrlFromArguments(final String... args) throws InvalidArgumentException {
         try {
             return args[0];
         } catch (Exception exception) {
-            throw InvalidArgumentException.create();
+            final String errorMessage = "Invalid argument. Argument #1: Url - must be a string.";
+            throw InvalidArgumentException.create(errorMessage);
+        }
+    }
+
+    private int getNumberOfThreadsFromArguments(final String... args) throws InvalidArgumentException {
+        try {
+             return Integer.parseInt(args[1]);
+        } catch (Exception exception) {
+            final String errorMessage = "Invalid argument. Argument #2: Number of Threads - must be an integer.";
+            throw InvalidArgumentException.create(errorMessage);
         }
     }
 }

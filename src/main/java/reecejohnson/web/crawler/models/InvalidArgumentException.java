@@ -9,9 +9,8 @@ public class InvalidArgumentException extends Exception {
         super(message);
     }
 
-    public static InvalidArgumentException create() {
-        String errorMessage = "Invalid arguments provided";
-        log.error(errorMessage);
-        return new InvalidArgumentException(errorMessage);
+    public static InvalidArgumentException create(final String message) {
+        log.error(message);
+        return new InvalidArgumentException(message);
     }
 }
